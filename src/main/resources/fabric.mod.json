@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "proximitytextchat",
+  "version": "${version}",
+  "name": "Proximity Text Chat",
+  "description": "Proximity Text Chat",
+  "authors": [
+    "StyStatic"
+  ],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/proximitytextchat/icon.png",
+  "environment": "server",
+  "entrypoints": {
+    "main": [
+      "com.data_stream.proximitytextchat.Main"
+    ]
+  },
+  "mixins": [
+    "proximitytextchat.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.14.13",
+    "fabric": "*",
+    "minecraft": "1.19.3"
+  }
+}
