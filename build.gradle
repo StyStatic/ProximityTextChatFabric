@@ -1,9 +1,11 @@
 plugins {
     id 'fabric-loom' version '1.1-SNAPSHOT'
     id 'maven-publish'
+    id "com.matthewprenger.cursegradle" version "1.4.0"
+    id "com.modrinth.minotaur" version "2.+"
 }
 
-version = project.mod_version
+version = "${minecraft_version}-${project.mod_version}FC"
 group = project.maven_group
 
 repositories {
@@ -85,4 +87,62 @@ publishing {
         // The repositories here will be used for publishing your artifact, not for
         // retrieving dependencies.
     }
+}
+
+curseforge {
+    Properties properties = new Properties()
+    def propertiesFile = project.rootProject.file('local.properties')
+    if (propertiesFile.exists()) {
+        properties.load(propertiesFile.newDataInputStream())
+    }
+    ext.curseforgetoken = properties.getProperty('curseforgetoken')
+
+    apiKey = ext.curseforgetoken
+    project {
+        id = '716287'
+        releaseType = 'beta'
+        addGameVersion minecraft_version
+        addGameVersion "Fabric"
+
+        mainArtifact(remapJar) {
+            displayName = "[FABRIC] [$minecraft_version] Proximity Text Chat"
+        }
+        relations {
+            requiredDependency 'forge-config-api-port-fabric'
+        }
+    }
+    options {
+        forgeGradleIntegration = false
+    }
+}
+
+modrinth {
+    Properties properties = new Properties()
+    def propertiesFile = project.rootProject.file('local.properties')
+    if (propertiesFile.exists()) {
+        properties.load(propertiesFile.newDataInputStream())
+    }
+    ext.modrinthtoken = properties.getProperty('modrinthtoken')
+
+    token = ext.modrinthtoken // This is the default. Remember to have the MODRINTH_TOKEN environment variable set or else this will fail, or set it to whatever you want - just make sure it stays private!
+    projectId = "proximity-text-chat" // This can be the project ID or the slug. Either will work!
+    versionName = "[FABRIC] [$minecraft_version] Proximity Text Chat"
+    versionNumber = "${mod_version}fc" // You don't need to set this manually. Will fail if Modrinth has this version already
+    versionType = "release" // This is the default -- can also be `beta` or `alpha`
+    uploadFile = remapJar // With Loom, this MUST be set to `remapJar` instead of `jar`!
+    gameVersions = [minecraft_version] // Must be an array, even with only one version
+    dependencies { // A special DSL for creating dependencies
+        required.project "fabric-api" // Creates a new required dependency on Fabric API
+        required.project "forge-config-api-port"
+    }
+}
+
+task upload {
+    dependsOn tasks.modrinth
+    dependsOn tasks.curseforge
+}
+
+afterEvaluate {
+    tasks.curseforge.dependsOn remapJar
+    tasks.modrinth.dependsOn remapJar
 }
