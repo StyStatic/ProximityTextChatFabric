@@ -137,7 +137,7 @@ modrinth {
     }
 }
 
-task upload {g
+task upload {
     dependsOn tasks.modrinth
     dependsOn tasks.curseforge
 }
